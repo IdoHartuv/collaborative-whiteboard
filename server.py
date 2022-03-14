@@ -6,12 +6,13 @@ from protocol import SERVER_ADDRESS, receive_data, send_data
 clients = []
 
 
-def broadcast(message):
+def broadcast(message, client_except=None):
     for client in clients:
-        try:
-            send_data(client, message)
-        except Exception as e:
-            print("[EXCEPTION]", e)
+        if client != client_except:
+            try:
+                send_data(client, message)
+            except Exception as e:
+                print("[EXCEPTION]", e)
 
 
 def recieve(client):
@@ -23,7 +24,7 @@ def recieve(client):
                 points = recieved['points']
                 print(points)
 
-                broadcast(recieved)
+                broadcast(recieved, client)
             else:
                 break
         except Exception as e:

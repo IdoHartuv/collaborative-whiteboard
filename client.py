@@ -1,8 +1,6 @@
 import socket
 
-import pygame
-
-from board import Board
+from paint import Paint
 from protocol import SERVER_ADDRESS
 
 WIDTH, HEIGHT = 500, 500
@@ -17,13 +15,7 @@ def main():
     
     # client.sendall(name)
 
-
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    
-    board = Board(screen, client, '')
-    board.run()
-
+    Paint(client, '')
     client.close()
 
 if __name__ == "__main__":
