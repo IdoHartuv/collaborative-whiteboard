@@ -72,9 +72,11 @@ class Paint(object):
 
     def use_eraser(self):
         self.activate_button(self.eraser_button, eraser_mode=True)
+        
 
     def choose_color(self):
         self.eraser_on = False
+        self.activate_button(self.pen_button)
         color = askcolor(color=self.color)[1]
         if color != None:
             self.color = color
@@ -89,7 +91,7 @@ class Paint(object):
 
     def paint(self, event):
         self.radius = self.choose_size_scale.get()
-        paint_color = 'WHITE' if self.eraser_on else self.color
+        paint_color = 'white' if self.eraser_on else self.color
 
         if self.old_x and self.old_y:
             self.canvas.create_line(self.old_x, self.old_y, event.x, event.y,
@@ -122,8 +124,12 @@ class Paint(object):
     # Socket handling
 
     def send_line(self):
+        if self.eraser_on:
+            color = 'white'
+        else: color = self.color
+
         send_data(self.client, {
-                  'type': 'DRAW', 'points': self.line, 'color': self.color, 'radius': self.radius})
+                  'type': 'DRAW', 'points': self.line, 'color': color, 'radius': self.radius})
 
     def receive(self, client):
         while True:
