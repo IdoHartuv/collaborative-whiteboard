@@ -1,4 +1,5 @@
 from socket import socket
+import sys
 import threading
 from tkinter import *
 from tkinter.colorchooser import askcolor
@@ -43,7 +44,8 @@ class Paint(object):
 
         self.setup()
 
-        receive_thread = threading.Thread(target=self.receive, args=(self.client,), daemon=True)
+        receive_thread = threading.Thread(
+            target=self.receive, args=(self.client,), daemon=True)
         receive_thread.start()
 
         self.root.mainloop()
@@ -63,6 +65,7 @@ class Paint(object):
 
     def clear_board(self):
         self.canvas.delete('all')
+        send_data(self.client, {'type': 'CLEAR'})
 
     def use_pen(self):
         self.activate_button(self.pen_button)
@@ -92,9 +95,9 @@ class Paint(object):
             self.canvas.create_line(self.old_x, self.old_y, event.x, event.y,
                                     width=self.radius, fill=paint_color,
                                     capstyle='round', smooth=True, splinesteps=36)
-            
+
             if len(self.line) > self.BUFFER_SIZE:
-                send_data(self.client, {'points': self.line, 'color': self.color, 'radius': self.radius})
+                self.send_line()
                 self.line = [(self.old_x, self.old_y)]
 
         self.line.append((event.x, event.y))
@@ -102,8 +105,8 @@ class Paint(object):
         self.old_y = event.y
 
     def pen_released(self, event):
+        self.send_line()
         self.old_x, self.old_y = None, None
-        send_data(self.client, {'points': self.line, 'color': self.color, 'radius': self.radius})
         self.line = []
 
     def draw_line(self, points, color, radius):
@@ -112,25 +115,32 @@ class Paint(object):
             print(points)
             for x, y in points:
                 self.canvas.create_line(px, py, x, y,
-                                width=radius, fill=color,
-                                capstyle='round', smooth=True, splinesteps=36)
+                                        width=radius, fill=color,
+                                        capstyle='round', smooth=True, splinesteps=36)
                 px, py = x, y
 
-
     # Socket handling
+
+    def send_line(self):
+        send_data(self.client, {
+                  'type': 'DRAW', 'points': self.line, 'color': self.color, 'radius': self.radius})
+
     def receive(self, client):
         while True:
             try:
-                #GET TWO CLOSE POINTS FROM SERVER AND DRAW TO SCREEN
+                # GET TWO CLOSE POINTS FROM SERVER AND DRAW TO SCREEN
                 recv = receive_data(client)
-                points, color, radius = recv['points'], recv['color'], recv['radius']
 
-                self.draw_line(points, color, radius)
+                if recv['type'] == 'DRAW':
+                    points, color, radius = recv['points'], recv['color'], recv['radius']
+                    self.draw_line(points, color, radius)
+                    print('[RECEIVE]', {'points': len(
+                        recv['points']), 'color': recv['color'], 'radius': recv['radius']})
+                elif recv['type'] == 'CLEAR':
+                    self.canvas.delete('all')
+                    print('[RECEIVE] CLEAR')
 
-                print('[RECEIVE]', {'points': len(recv['points']), 'color': recv['color'], 'radius': recv['radius']})
-
-            except socket.error as e:
-                print("An error occurred!", e)
+            except Exception as e:
+                print("[EXCEPTION]", e)
                 break
-
         self.client.close()

@@ -18,13 +18,15 @@ def broadcast(message, client_except=None):
 def recieve(client):
     while True:
         try:
-            recieved = receive_data(client)
+            recv = receive_data(client)
 
-            if recieved is not None:
-                points = recieved['points']
-                print(points)
+            if recv is not None:
+                if recv['type'] == 'DRAW':
+                    print('[DRAW]', [len(recv['points']), recv['color'], recv['radius']])
+                elif recv['type'] == 'CLEAR':
+                    print('[CLEAR]')
 
-                broadcast(recieved, client)
+                broadcast(recv, client)
             else:
                 break
         except Exception as e:
