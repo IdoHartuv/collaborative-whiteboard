@@ -65,7 +65,7 @@ class Paint(object):
 
     def clear_board(self):
         self.canvas.delete('all')
-        send_data(self.client, {'type': 'CLEAR'})
+        send_data(self.client, {'type': 'CLEAR'}, to_encrypt=True)
 
     def use_pen(self):
         self.activate_button(self.pen_button)
@@ -129,13 +129,13 @@ class Paint(object):
         else: color = self.color
 
         send_data(self.client, {
-                  'type': 'DRAW', 'points': self.line, 'color': color, 'radius': self.radius})
+                  'type': 'DRAW', 'points': self.line, 'color': color, 'radius': self.radius}, to_encrypt=True)
 
     def receive(self, client):
         while True:
             try:
                 # GET TWO CLOSE POINTS FROM SERVER AND DRAW TO SCREEN
-                recv = receive_data(client)
+                recv = receive_data(client, encrypted=True)
 
                 if recv['type'] == 'DRAW':
                     points, color, radius = recv['points'], recv['color'], recv['radius']
@@ -147,6 +147,6 @@ class Paint(object):
                     print('[RECEIVE] CLEAR')
 
             except Exception as e:
-                print("[EXCEPTION]", e)
+                print("[EXCEPTION RECEIVING]", e)
                 break
         self.client.close()

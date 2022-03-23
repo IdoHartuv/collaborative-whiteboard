@@ -12,25 +12,20 @@ def broadcast(message, client_except=None):
             try:
                 send_data(client, message)
             except Exception as e:
-                print("[EXCEPTION]", e)
+                print("[EXCEPTION IN BROADCASTING]", e)
 
 
 def recieve(client):
     while True:
         try:
             recv = receive_data(client)
-
             if recv is not None:
-                if recv['type'] == 'DRAW':
-                    print('[DRAW]', [len(recv['points']), recv['color'], recv['radius']])
-                elif recv['type'] == 'CLEAR':
-                    print('[CLEAR]')
-
+                print('[RECEIVE]', client.getpeername())
                 broadcast(recv, client)
             else:
                 break
         except Exception as e:
-            print("[EXCEPTION]", e)
+            print("[EXCEPTION IN RECEIVING]", e)
             break
 
     clients.remove(client)
@@ -48,7 +43,7 @@ def wait_for_connection(server):
             thread = threading.Thread(target=recieve, args=(client,), daemon=True)
             thread.start()
         except Exception as e:
-            print("[EXCEPTION]", e)
+            print("[EXCEPTION IN CONNECTION]", e)
             break
 
     print("SERVER CRASHED!")
