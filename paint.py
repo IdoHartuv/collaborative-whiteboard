@@ -13,9 +13,9 @@ class Paint(object):
     DEFAULT_COLOR = 'black'
     BUFFER_SIZE = 50
 
-    def __init__(self, client, name):
+    def __init__(self, client, key):
         self.client = client
-        self.name = name
+        self.key = key
 
         self.root = Tk()
 
@@ -65,14 +65,13 @@ class Paint(object):
 
     def clear_board(self):
         self.canvas.delete('all')
-        send_data(self.client, {'type': 'CLEAR'}, to_encrypt=True)
+        send_data(self.client, {'type': 'CLEAR'}, key=self.key)
 
     def use_pen(self):
         self.activate_button(self.pen_button)
 
     def use_eraser(self):
         self.activate_button(self.eraser_button, eraser_mode=True)
-        
 
     def choose_color(self):
         self.eraser_on = False
@@ -126,16 +125,17 @@ class Paint(object):
     def send_line(self):
         if self.eraser_on:
             color = 'white'
-        else: color = self.color
+        else:
+            color = self.color
 
         send_data(self.client, {
-                  'type': 'DRAW', 'points': self.line, 'color': color, 'radius': self.radius}, to_encrypt=True)
+                  'type': 'DRAW', 'points': self.line, 'color': color, 'radius': self.radius}, key=self.key)
 
     def receive(self, client):
         while True:
             try:
                 # GET TWO CLOSE POINTS FROM SERVER AND DRAW TO SCREEN
-                recv = receive_data(client, encrypted=True)
+                recv = receive_data(client, key=self.key)
 
                 if recv['type'] == 'DRAW':
                     points, color, radius = recv['points'], recv['color'], recv['radius']
