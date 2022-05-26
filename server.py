@@ -1,16 +1,16 @@
-import os
 import socket
 import threading
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.fernet import Fernet
 
 from protocol import SERVER_ADDRESS, receive_data, send_data
 
 
 clients = []
-
+secret_key = Fernet.generate_key()
 
 def broadcast(message, client_except=None):
     for client in clients:
@@ -32,7 +32,7 @@ def send_encrypted_secret_key(client):
         )
 
         encrypted = public_key.encrypt(
-            os.environ.get('SECRET_KEY').encode(),
+            secret_key,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
