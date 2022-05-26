@@ -17,8 +17,8 @@ Run server:
 ```sh
 python server.py
 ```
-Run clients:
+Run clients (Agrument ```name``` is optional):
 ```sh
-python client.py
+python client.py --name <name>
 ```
 
