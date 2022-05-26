@@ -1,5 +1,3 @@
-from socket import socket
-import sys
 import threading
 from tkinter import *
 from tkinter.colorchooser import askcolor
@@ -13,11 +11,13 @@ class Paint(object):
     DEFAULT_COLOR = 'black'
     BUFFER_SIZE = 50
 
-    def __init__(self, client, key):
+    def __init__(self, client, key, name=''):
         self.client = client
         self.key = key
+        self.name = name if name else 'Client'
 
         self.root = Tk()
+        self.root.title(f"{self.name} - {self.client.getsockname()}")
 
         # GUI setup
         self.pen_button = Button(

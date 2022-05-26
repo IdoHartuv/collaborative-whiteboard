@@ -1,3 +1,4 @@
+import sys
 import socket
 
 from paint import Paint
@@ -47,8 +48,13 @@ def main():
     client.connect(SERVER_ADDRESS)
 
     key = get_secret_key(client)
-
-    Paint(client, key)
+    
+    argv = sys.argv
+    name = ''
+    if argv.index("--name") and argv.index("--name")+1 < len(argv):
+        name = argv[argv.index("--name")+1] 
+    
+    Paint(client, key, name)
     client.close()
 
 
