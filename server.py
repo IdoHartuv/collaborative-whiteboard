@@ -1,6 +1,6 @@
 import socket
 import threading
-from cryptography.hazmat.backends import default_backend
+
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -27,17 +27,16 @@ def send_encrypted_secret_key(client):
     recv = receive_data(client)
     if recv is not None:
         public_key = serialization.load_pem_public_key(
-            recv,
-            backend=default_backend()
-        )
+            recv
+        ) # Load public key object from received
 
         encrypted = public_key.encrypt(
             secret_key,
             padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                mgf=padding.MGF1(algorithm=hashes.SHA256()), # Mask Generation Function
                 algorithm=hashes.SHA256(),
                 label=None
-            )
+            ) # Optimal Asymmetric Encryption Padding
         )
 
         send_data(client, encrypted)
