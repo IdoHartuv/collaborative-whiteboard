@@ -1,10 +1,6 @@
 import json
 import struct
 from cryptography.fernet import Fernet
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 SERVER_ADDRESS = ('127.0.0.1', 1339)
 

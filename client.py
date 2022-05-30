@@ -51,7 +51,7 @@ def main():
     
     argv = sys.argv
     name = ''
-    if argv.index("--name") and argv.index("--name")+1 < len(argv):
+    if "--name" in argv:
         name = argv[argv.index("--name")+1] 
     
     Paint(client, key, name)

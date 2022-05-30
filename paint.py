@@ -5,7 +5,7 @@ from tkinter.colorchooser import askcolor
 from protocol import receive_data, send_data
 
 
-class Paint(object):
+class Paint():
 
     DEFAULT_PEN_SIZE = 5.0
     DEFAULT_COLOR = 'black'
@@ -20,9 +20,9 @@ class Paint(object):
         self.root.title(f"{self.name} - {self.client.getsockname()}")
 
         # GUI setup
-        self.pen_button = Button(
+        self.clear_button = Button(
             self.root, text='CLEAR', command=self.clear_board)
-        self.pen_button.grid(row=0, column=0)
+        self.clear_button.grid(row=0, column=0)
 
         self.pen_button = Button(self.root, text='Pen', command=self.use_pen)
         self.pen_button.grid(row=0, column=1)
