@@ -1,10 +1,28 @@
 import json
+import socket
 import struct
 from cryptography.fernet import Fernet
 
-SERVER_ADDRESS = ('127.0.0.1', 1339)
+#Handle address
+def get_address(local=False):
+    PORT = 8000
+    
+    if local:
+        return ('127.0.0.1', PORT)
+    else: # do a little trick to get LAN address
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.settimeout(0)
+        try:
+            # doesn't even have to be reachable
+            s.connect(('8.8.8.8', 80))
+            IP = s.getsockname()[0]
+        except Exception:
+            IP = '127.0.0.1'
+        finally:
+            s.close()
+        return (IP,PORT)
 
-
+#Handle data
 def send_data(conn, payload, key=None):
     # Serialize payload and encrypt it
     if key:

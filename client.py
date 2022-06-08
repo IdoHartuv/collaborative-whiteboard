@@ -2,7 +2,7 @@ import sys
 import socket
 
 from paint import Paint
-from protocol import SERVER_ADDRESS, receive_data, send_data
+from protocol import get_address, receive_data, send_data
 
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization, hashes
@@ -45,14 +45,18 @@ def get_secret_key(client):
 
 def main():
     client = socket.socket()
-    client.connect(SERVER_ADDRESS)
 
-    key = get_secret_key(client)
-    
     argv = sys.argv
     name = ''
     if "--name" in argv:
         name = argv[argv.index("--name")+1] 
+    
+    SERVER_ADDRESS = get_address("--local" in argv or "-L" in argv)
+    
+    client.connect(SERVER_ADDRESS)
+    print(f"Connected to {SERVER_ADDRESS[0]}:{SERVER_ADDRESS[1]}")
+
+    key = get_secret_key(client)
     
     Paint(client, key, name)
     client.close()

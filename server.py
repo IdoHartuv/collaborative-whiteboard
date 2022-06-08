@@ -1,4 +1,5 @@
 import socket
+import sys
 import threading
 
 from cryptography.hazmat.primitives import serialization
@@ -6,11 +7,12 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.fernet import Fernet
 
-from protocol import SERVER_ADDRESS, receive_data, send_data
+from protocol import get_address, receive_data, send_data
 
 
 clients = []
 secret_key = Fernet.generate_key()
+
 
 def broadcast(message, client_except=None):
     for client in clients:
@@ -28,15 +30,16 @@ def send_encrypted_secret_key(client):
     if recv is not None:
         public_key = serialization.load_pem_public_key(
             recv
-        ) # Load public key object from received
+        )  # Load public key object from received
 
         encrypted = public_key.encrypt(
             secret_key,
             padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()), # Mask Generation Function
+                # Mask Generation Function
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
                 label=None
-            ) # Optimal Asymmetric Encryption Padding
+            )  # Optimal Asymmetric Encryption Padding
         )
 
         send_data(client, encrypted)
@@ -82,10 +85,14 @@ def wait_for_connection(server):
 
 def main():
     server = socket.socket()
+
+    argv = sys.argv
+    
+    SERVER_ADDRESS = get_address("--local" in argv or "-L" in argv)
     server.bind(SERVER_ADDRESS)
 
     server.listen(5)
-    print("[STARTED] Waiting for connections...")
+    print(f"[STARTED] Waiting for connections on {SERVER_ADDRESS[0]}:{SERVER_ADDRESS[1]} ...")
     accept_thread = threading.Thread(
         target=wait_for_connection, args=(server,))
     accept_thread.start()
