@@ -50,6 +50,8 @@ def main():
     name = ''
     if "--name" in argv:
         name = argv[argv.index("--name")+1] 
+    elif "-N" in argv:
+        name = argv[argv.index("-N")+1] 
     
     SERVER_ADDRESS = get_address("--local" in argv or "-L" in argv)
     
