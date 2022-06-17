@@ -93,10 +93,8 @@ def main():
 
     server.listen(5)
     print(f"[STARTED] Waiting for connections on {SERVER_ADDRESS[0]}:{SERVER_ADDRESS[1]} ...")
-    accept_thread = threading.Thread(
-        target=wait_for_connection, args=(server,))
-    accept_thread.start()
-    accept_thread.join()
+    wait_for_connection(server)
+    
     server.close()
 
 
